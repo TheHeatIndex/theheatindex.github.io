@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Heat Index — What's Good Miami</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800;900&family=Barlow:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { background: #3a00f4; }
+
+  :root {
+    --blue-deep:  #3a00f4;
+    --blue-sky:   #5BC8F5;
+    --cream:      #f8f9e3;
+    --white:      #FFFFFF;
+    --blue-mid:   #2a00b8;
+    --blue-hover: #4a10ff;
+  }
+
+  body {
+    font-family: 'Barlow', sans-serif;
+    color: var(--white);
+    max-width: 640px;
+    margin: 0 auto;
+    padding: 0;
+  }
+
+  /* HEADER */
+  .header {
+    padding: 32px 28px 24px;
+    border-bottom: 2px solid var(--blue-sky);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .header::after {
+    content: 'W';
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 900;
+    font-style: italic;
+    font-size: 240px;
+    color: var(--blue-sky);
+    opacity: 0.06;
+    position: absolute;
+    right: -10px;
+    top: -20px;
+    line-height: 1;
+    pointer-events: none;
+  }
+
+  .eyebrow {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--cream);
+    margin-bottom: 8px;
+  }
+
+  .main-title {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: clamp(52px, 14vw, 80px);
+    font-weight: 900;
+    line-height: 0.9;
+    text-transform: uppercase;
+    color: var(--white);
+    letter-spacing: -0.01em;
+    white-space: nowrap;
+  }
+
+  .title-sub {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: clamp(22px, 6vw, 34px);
+    font-weight: 800;
+    text-transform: uppercase;
+    color: var(--cream);
+    letter-spacing: 0.12em;
+    margin-top: 6px;
+  }
+
+  .header-bottom {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-top: 16px;
+    padding-top: 14px;
+    border-top: 1px solid rgba(91,200,245,0.28);
+  }
+
+  .tagline {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: clamp(12px, 3vw, 15px);
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--cream);
+    opacity: 1;
+    max-width: 300px;
+    line-height: 1.4;
+  }
+
+  .meta { text-align: right; flex-shrink: 0; }
+  .meta .vol {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--blue-sky);
+  }
+  .meta .date {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 22px;
+    font-weight: 800;
+    color: var(--white);
+    line-height: 1.1;
+  }
+
+  /* LEGEND */
+  .legend {
+    background: var(--blue-mid);
+    padding: 8px 28px;
+    display: flex;
+    align-items: center;
+    border-bottom: 1px solid rgba(91,200,245,0.15);
+  }
+  .legend-lbl {
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: rgba(91,200,245,0.55);
+    margin-right: 12px;
+  }
+  .leg {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.38);
+    margin-right: 14px;
+  }
+  .leg-dot { width:6px; height:6px; border-radius:50%; flex-shrink:0; }
+  .leg-dot.best    { background: var(--cream); }
+  .leg-dot.fire    { background: var(--blue-sky); }
+  .leg-dot.classic { background: rgba(255,255,255,0.5); border: 1px solid rgba(255,255,255,0.7); }
+  .leg-dot.new     { background: var(--white); }
+  .leg-dot.tie     { background: linear-gradient(135deg, var(--blue-sky) 50%, var(--white) 50%); }
+
+  /* HINT */
+  .hint {
+    text-align: center;
+    padding: 7px 0;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: rgba(91,200,245,0.35);
+    background: var(--blue-mid);
+    border-bottom: 1px solid rgba(91,200,245,0.12);
+    animation: pulse 2s ease-in-out infinite;
+  }
+  @keyframes pulse { 0%,100%{opacity:0.4} 50%{opacity:1} }
+
+  /* SCROLL */
+  .scroll-wrap {
+    max-height: 560px;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: var(--blue-sky) var(--blue-mid);
+  }
+  .scroll-wrap::-webkit-scrollbar { width: 3px; }
+  .scroll-wrap::-webkit-scrollbar-track { background: var(--blue-mid); }
+  .scroll-wrap::-webkit-scrollbar-thumb { background: var(--blue-sky); }
+
+  /* ITEM */
+  .item {
+    display: grid;
+    grid-template-columns: 52px 1fr 62px;
+    align-items: start;
+    padding: 14px 28px;
+    border-bottom: 1px solid rgba(91,200,245,0.1);
+    transition: background 0.12s;
+    cursor: default;
+    animation: slideIn 0.3s ease both;
+  }
+  .item:hover { background: var(--blue-hover); }
+
+  @keyframes slideIn {
+    from { opacity:0; transform:translateX(-6px); }
+    to   { opacity:1; transform:translateX(0); }
+  }
+
+  .item:nth-child(1)  { animation-delay:0.03s }
+  .item:nth-child(2)  { animation-delay:0.06s }
+  .item:nth-child(3)  { animation-delay:0.09s }
+  .item:nth-child(4)  { animation-delay:0.12s }
+  .item:nth-child(5)  { animation-delay:0.15s }
+  .item:nth-child(6)  { animation-delay:0.18s }
+  .item:nth-child(7)  { animation-delay:0.21s }
+  .item:nth-child(8)  { animation-delay:0.24s }
+  .item:nth-child(9)  { animation-delay:0.27s }
+  .item:nth-child(10) { animation-delay:0.30s }
+  .item:nth-child(11) { animation-delay:0.33s }
+  .item:nth-child(12) { animation-delay:0.36s }
+  .item:nth-child(13) { animation-delay:0.39s }
+  .item:nth-child(14) { animation-delay:0.42s }
+  .item:nth-child(15) { animation-delay:0.45s }
+  .item:nth-child(16) { animation-delay:0.48s }
+  .item:nth-child(17) { animation-delay:0.51s }
+  .item:nth-child(18) { animation-delay:0.54s }
+  .item:nth-child(19) { animation-delay:0.57s }
+  .item:nth-child(20) { animation-delay:0.60s }
+  .item:nth-child(21) { animation-delay:0.63s }
+  .item:nth-child(22) { animation-delay:0.66s }
+  .item:nth-child(23) { animation-delay:0.69s }
+  .item:nth-child(24) { animation-delay:0.72s }
+  .item:nth-child(25) { animation-delay:0.75s }
+
+  .item.top { border-left: 3px solid var(--blue-sky); padding-left: 25px; }
+
+  /* RANK */
+  .rank {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 34px;
+    font-weight: 900;
+    line-height: 1;
+    color: rgba(255,255,255,0.55);
+    user-select: none;
+    padding-top: 2px;
+  }
+  .item.top .rank { color: var(--blue-sky); }
+
+  /* INFO */
+  .info { padding-right: 10px; }
+
+  .name {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 17px;
+    font-weight: 800;
+    text-transform: uppercase;
+    color: var(--white);
+    letter-spacing: 0.02em;
+    line-height: 1.15;
+  }
+  .item.top .name { font-size: 19px; }
+
+  .location {
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--blue-sky);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-top: 2px;
+  }
+
+  .note {
+    font-size: 11px;
+    font-style: italic;
+    font-weight: 400;
+    color: rgba(255,255,255,0.75);
+    margin-top: 4px;
+    line-height: 1.45;
+  }
+
+  /* BADGE */
+  .badge-col {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    padding-top: 4px;
+  }
+  .badge-dot { width:8px; height:8px; border-radius:50%; }
+  .badge-dot.best    { background: var(--cream); box-shadow: 0 0 8px var(--cream); }
+  .badge-dot.fire    { background: var(--blue-sky); box-shadow: 0 0 7px var(--blue-sky); }
+  .badge-dot.classic { background: transparent; border: 1.5px solid rgba(255,255,255,0.5); }
+  .badge-dot.new     { background: var(--white); box-shadow: 0 0 7px rgba(255,255,255,0.5); }
+  .badge-dot.watch   { background: transparent; border: 1.5px solid rgba(255,255,255,0.25); }
+  .badge-dot.tie     { background: linear-gradient(135deg, var(--blue-sky) 50%, rgba(255,255,255,0.7) 50%); }
+
+  .badge-lbl {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 8px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    text-align: center;
+    line-height: 1.3;
+  }
+  .badge-lbl.best    { color: var(--cream); }
+  .badge-lbl.fire    { color: var(--blue-sky); }
+  .badge-lbl.classic { color: rgba(255,255,255,0.4); }
+  .badge-lbl.new     { color: rgba(255,255,255,0.8); }
+  .badge-lbl.watch   { color: rgba(255,255,255,0.25); }
+  .badge-lbl.tie     { color: rgba(91,200,245,0.7); }
+
+  /* FOOTER */
+  .footer {
+    background: var(--blue-mid);
+    padding: 14px 28px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-top: 2px solid var(--blue-sky);
+  }
+  .footer-brand {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 15px;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--white);
+  }
+  .footer-brand span { color: var(--cream); }
+  .footer-note {
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: rgba(91,200,245,0.45);
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="eyebrow">What's Good Miami</div>
+  <div class="main-title">The Heat Index</div>
+  <div class="title-sub">Restaurants</div>
+  <div class="header-bottom">
+    <div class="tagline">Miami's most trusted ranking.<br>Placement is never for sale.</div>
+    <div class="meta">
+      <div class="vol">Vol. 01</div>
+      <div class="date">Feb 2026</div>
+    </div>
+  </div>
+</div>
+
+<div class="legend">
+  <span class="legend-lbl">Key</span>
+  <span class="leg"><span class="leg-dot best"></span>Best of Best</span>
+  <span class="leg"><span class="leg-dot fire"></span>On Fire</span>
+  <span class="leg"><span class="leg-dot classic"></span>Classic</span>
+  <span class="leg"><span class="leg-dot new"></span>New</span>
+  <span class="leg"><span class="leg-dot tie"></span>Tie</span>
+</div>
+
+<div class="hint">↓ Scroll to see all 25 ↓</div>
+
+<div class="scroll-wrap">
+
+  <div class="item top">
+    <div class="rank">1</div>
+    <div class="info">
+      <div class="name">Boia De</div>
+      <div class="location">Little Haiti · Italian</div>
+      <div class="note">Still the #1 locally-earned table. Michelin-starred, no other location diluting the story. Perpetually booked 30 days out.</div>
+    </div>
+    <div class="badge-col"><div class="badge-dot best"></div><div class="badge-lbl best">Best of<br>the Best</div></div>
+  </div>
+
+  <div class="item top">
+    <div class="rank">2</div>
+    <div class="info">
+      <div class="name">Sunny's Steakhouse</div>
+      <div class="location">Miami · Steakhouse</div>
+      <div class="note">Made the February 2026 local food editor's personal best-meals list. Chef-industry hangout during SBWFF.</div>
+    </div>
+    <div class="badge-col"><div class="badge-dot best"></div><div class="badge-lbl best">Best of<br>the Best</div></div>
+  </div>
+
+  <div class="item top">
+    <div class="rank">3</div>
+    <div class="info">
+      <div class="name">Recoveco</div>
+      <div class="location">South Miami · Chef-Driven</div>
+      <div class="note">The kind of opening that reminds you why Miami's neighborhood restaurant scene is worth paying attention to.</div>
+    </div>
+    <div class="badge-col"><div class="badge-dot fire"></div><div class="badge-lbl fire">On Fire</div></div>
+  </div>
+
+  <div class="item top">
+    <div class="rank">4</div>
+    <div class="info">
+      <div class="name">Cote</div>
+      <div class="location">Design District · Korean Steakhouse</div>
+      <div class="note">Michelin-starred. The Butcher's Feast remains one of the best value moves in Miami fine dining.</div>
+    </div>
+    <div class="badge-col"><div class="badge-dot best"></div><div class="badge-lbl best">Best of<br>the Best</div></div>
+  </div>
+
+  <div class="item top">
+    <div class="rank">5</div>
+    <div class="info">
+      <div class="name">Walrus Rodeo</div>
+      <div class="location">Little Haiti · American</div>
+      <div class="note">Chef-industry hangout of SBWFF week. A spot that rewards locals over tourists — no hype machine, just quality.</div>
+    </div>
+    <div class="badge-col"><div class="badge-dot fire"></div><div class="badge-lbl fire">On Fire</div></div>
+  </div>
+
+  <div class="item">
+    <div class="rank">6</div>
+    <div class="info">
+      <div class="name">Yasu Omakase</div>
+      <div class="location">Miami · Japanese Omakase</div>
+      <div class="note">Opened Jan 14, 2026. 8-seat counter, $250 omakase, prime time on Dorsia only. Purely Miami, nowhere else.</div>
+    </div>
+    <div class="badge-col"><div class="badge-dot fire"></div><div class="badge-lbl fire">On Fire</div></div>
+  </div>
+
+  <div class="item">
+    <div class="rank">7</div>
+    <div class="info">
+      <div class="name">Fooq's</div>
+      <div class="location">Little River · Persian-French</div>
+      <div class="note">Reopened Jan 23 after a four-year hiatus. The most emotionally resonant comeback in recent Miami dining memory.</div>
+    </div>
+    <div class="badge-col"><div class="badge-dot fire"></div><div class="badge-lbl fire">On Fire</div></div>
+  </div>
+
+  <div class="item">
+    <div class="rank">8</div>
+    <div class="info">
+      <div class="name">ViceVersa</div>
+      <div class="location">Downtown Miami · Italian</div>
+      <div class="note">Quietly becoming the industry insider's favorite Italian in Miami. No velvet ropes, no performance.</div>
+    </div>
+    <div class="badge-col"><div class="badge-dot fire"></div><div class="badge-lbl fire">On Fire</div></div>
+  </div>
+
+  <div class="item">
+    <div class="rank">9</div>
+    <div class="info">
+      <div class="name">Macchialina</div>
+      <div class="location">South Beach · Italian</div>
+      <div class="note">Brought back their pasta omakase at the bar on Wednesdays as of Feb 2026. Locally beloved for years.</div>
+    </div>
+    <div class="badge-col"><div class="badge-dot classic"></div><div class="badge-lbl classic">Classic</div></div>
+  </div>
+
+  <div class="item">
+    <div class="rank">10</div>
+    <div class="info">
+      <div class="name">Nami Nori &amp; Pari Pari</div>
+      <div class="location">Design District / Wynwood · Japanese Handroll — Tie</div>
+      <div class="note">Two different expressions of the same idea. Argue about which is better. You're going to both.</div>
+    </div>
+    <div class="badge-col"><div class="badge-dot tie"></div><div class="badge-lbl tie">Tie</div></div>
+  </div>
+
+  <div class="item">
+    <div class="rank">11</div>
+    <div class="info">
+      <div class="name">Daniel's Miami</div>
+      <div class="location">Coral Gables · Steakhouse</div>
+      <div class="note">Arrived in 2025 and immediately felt like it had been there for years. Fine dining polish with genuine neighborhood soul.</div>
+    </div>
+    <div class="badge-col"><div class="badge-dot fire"></div><div class="badge-lbl fire">On Fire</div></div>
+  </div>
+
+  <div class="item">
+    <div class="rank">12</div>
+    <div class="info">
+      <div class="name">La Petite Maison</div>
+      <div class="location">Brickell · French Mediterranean</div>
+      <div class="note">Miami locals are coming back around to it. A consistency that most restaurants at this price point can't touch.</div>
+    </div>
+    <div class="badge-col"><div class="badge-dot classic"></div><div class="badge-lbl classic">Classic</div></div>
+  </div>
+
+  <div class="item">
+    <div class="rank">13</div>
+    <div class="info">
+      <div class="name">Thomas Keller at The Surf Club</div>
+      <div class="location">Surfside · American Fine Dining</div>
+      <div class="note">A benchmark meal for anyone who wants to understand technical precision at the highest level in South Florida.</div>
+    </div>
+    <div class="badge-col"><div class="badge-dot classic"></div><div class="badge-lbl classic">Classic</div></div>
+  </div>
+
+  <div class="item">
+    <div class="rank">14</div>
+    <div class="info">
+      <div class="name">The Joyce</div>
+      <div class="location">South Beach · Speakeasy Bar</div>
+      <div class="note">The burger won a local food editor's personal vote at SBWFF's Burger Bash. Still on the city's monthly Hit List.</div>
+    </div>
+    <div class="badge-col"><div class="badge-dot fire"></div><div class="badge-lbl fire">On Fire</div></div>
+  </div>
+
+  <div class="item">
+    <div class="rank">15</div>
+    <div class="info">
+      <div class="name">Marc's &amp; Peppi's Pizza</div>
+      <div class="location">North Beach / Design District · Pizza — Tie</div>
+      <div class="note">Two different pizza conversations, both worth having. Argue about which is better. You should be going to both.</div>
+    </div>
+    <div class="badge-col"><div class="badge-dot tie"></div><div class="badge-lbl tie">Tie</div></div>
+  </div>
+
+  <div class="item">
+    <div class="rank">16</div>
+    <div class="info">
+      <div class="name">Ezio's</div>
+      <div class="location">North Beach · Italian</div>
+      <div class="note">The Roberta's team brings their ethos to North Beach. A serious opening landing quietly and building its reputation the right way.</div>
+    </div>
+    <div class="badge-col"><div class="badge-dot new"></div><div class="badge-lbl new">New</div></div>
+  </div>
+
+  <div class="item">
+    <div class="rank">17</div>
+    <div class="info">
+      <div class="name">Ophelia</div>
+      <div class="location">Coconut Grove · Bakery</div>
+      <div class="note">An RV in a Grove lot that sells out by 9am Thursday–Saturday. Selected for the Miami Open culinary roster. Still just an RV.</div>
+    </div>
+    <div class="badge-col"><div class="badge-dot fire"></div><div class="badge-lbl fire">On Fire</div></div>
+  </div>
+
+  <div class="item">
+    <div class="rank">18</div>
+    <div class="info">
+      <div class="name">Yamashiro</div>
+      <div class="location">Miami Worldcenter · Japanese</div>
+      <div class="note">Landed with quiet confidence. The kind of opening that builds a devoted following before the press catches up.</div>
+    </div>
+    <div class="badge-col"><div class="badge-dot new"></div><div class="badge-lbl new">New</div></div>
+  </div>
+
+  <div class="item">
+    <div class="rank">19</div>
+    <div class="info">
+      <div class="name">Felice</div>
+      <div class="location">Brickell · Italian</div>
+      <div class="note">The truest taste of Italy on the Brickell corridor. No oversaucing, no shortcuts, no need to announce itself.</div>
+    </div>
+    <div class="badge-col"><div class="badge-dot fire"></div><div class="badge-lbl fire">On Fire</div></div>
+  </div>
+
+  <div class="item">
+    <div class="rank">20</div>
+    <div class="info">
+      <div class="name">Sunshine Coffee</div>
+      <div class="location">Miami Beach · Coffee</div>
+      <div class="note">The iced coffee is the best in the state of Florida. A brand that earns everything through the cup.</div>
+    </div>
+    <div class="badge-col"><div class="badge-dot fire"></div><div class="badge-lbl fire">On Fire</div></div>
+  </div>
+
+  <div class="item">
+    <div class="rank">21</div>
+    <div class="info">
+      <div class="name">Papi Steak</div>
+      <div class="location">South Beach · Steakhouse</div>
+      <div class="note">The TikTok volume is enormous — but it's tourists filming the beef case. A spectacle worth experiencing once.</div>
+    </div>
+    <div class="badge-col"><div class="badge-dot classic"></div><div class="badge-lbl classic">Classic</div></div>
+  </div>
+
+  <div class="item">
+    <div class="rank">22</div>
+    <div class="info">
+      <div class="name">Karyu</div>
+      <div class="location">Design District · Wagyu Kaiseki</div>
+      <div class="note">U.S. debut of Tokyo's Michelin-starred Oniku Karyu. Twelve seats, total focus. Too new to rank higher but impossible to ignore.</div>
+    </div>
+    <div class="badge-col"><div class="badge-dot new"></div><div class="badge-lbl new">New</div></div>
+  </div>
+
+  <div class="item">
+    <div class="rank">23</div>
+    <div class="info">
+      <div class="name">Caracas</div>
+      <div class="location">Miami · Venezuelan</div>
+      <div class="note">Never needs to be on a list to stay full. Arepas that haven't changed because they don't need to.</div>
+    </div>
+    <div class="badge-col"><div class="badge-dot fire"></div><div class="badge-lbl fire">On Fire</div></div>
+  </div>
+
+  <div class="item">
+    <div class="rank">24</div>
+    <div class="info">
+      <div class="name">Pastis &amp; Makoto</div>
+      <div class="location">Wynwood / Bal Harbour · French &amp; Japanese — Tie</div>
+      <div class="note">Both consistently packed, both great rooms. National names that locals still go to — just not to discover something.</div>
+    </div>
+    <div class="badge-col"><div class="badge-dot classic"></div><div class="badge-lbl classic">Classic</div></div>
+  </div>
+
+  <div class="item">
+    <div class="rank">25</div>
+    <div class="info">
+      <div class="name">Vecinos</div>
+      <div class="location">Mid-Beach · Neighborhood</div>
+      <div class="note">The newest name on this list. Neighborhood-first energy. Locals find it first. Watch this one.</div>
+    </div>
+    <div class="badge-col"><div class="badge-dot new"></div><div class="badge-lbl new">New</div></div>
+  </div>
+
+</div>
+
+<div class="footer">
+  <div class="footer-brand">What's Good <span>Miami</span></div>
+  <div class="footer-note">Feb 2026 · Placement Never For Sale</div>
+</div>
+
+</body>
+</html>
