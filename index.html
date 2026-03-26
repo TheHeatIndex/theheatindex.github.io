@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Heat Index — What's Good Miami</title>
+<style>
+:root {
+  --bg:#0f0a2e;--surface:#1a1245;--accent:#3d1fe0;--accent2:#7c5ff5;
+  --tag-bg:rgba(255,255,255,0.09);--tag-bg2:rgba(124,95,245,0.18);
+  --text:#fff;--muted:rgba(255,255,255,0.55);--border:rgba(255,255,255,0.12);
+  --num:rgba(255,255,255,0.13);--card:rgba(255,255,255,0.04);
+  --exp:rgba(255,255,255,0.06);--tog:rgba(255,255,255,0.1);
+}
+.lm {
+  --bg:#f0eeff;--surface:#fff;--accent:#3d1fe0;--accent2:#5a3fcc;
+  --tag-bg:#ede9fe;--tag-bg2:rgba(93,63,204,0.1);
+  --text:#12084a;--muted:#6e5faa;--border:#ccc4f5;
+  --num:#d8d0f5;--card:rgba(93,63,204,0.05);--exp:rgba(93,63,204,0.07);--tog:#e8e3ff;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;transition:background .3s;min-height:100vh;}
+#app{max-width:900px;margin:0 auto;padding:0 0 4rem;}
+
+/* HEADER */
+.hi-header{padding:2.5rem 2rem 0;}
+.hi-eyebrow{font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin-bottom:.5rem;}
+.hi-title{font-size:clamp(2.8rem,7vw,4.8rem);font-weight:900;color:var(--text);line-height:.92;text-transform:uppercase;letter-spacing:-.025em;margin-bottom:.35rem;}
+.hi-meta-row{display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;flex-wrap:wrap;margin-top:1.2rem;}
+.hi-tagline{font-size:12.5px;color:var(--muted);line-height:1.6;}
+.hi-meta-right{display:flex;flex-direction:column;align-items:flex-end;gap:8px;}
+.hi-vol{font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);}
+.hi-date{font-size:1.3rem;font-weight:800;color:var(--text);}
+.tog-btn{background:var(--tog);border:.5px solid var(--border);border-radius:20px;padding:5px 14px;font-size:11.5px;color:var(--muted);cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:all .2s;white-space:nowrap;}
+.tog-btn:hover{background:var(--accent);color:#fff;border-color:var(--accent);}
+
+/* TABS */
+.tab-bar{display:flex;gap:0;margin:1.8rem 0 0;border-bottom:.5px solid var(--border);}
+.tab{padding:.75rem 1.8rem;font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;transition:all .2s;}
+.tab:hover{color:var(--text);}
+.tab.active{color:var(--text);border-bottom-color:var(--text);}
+.tab-vol{font-size:9px;font-weight:400;letter-spacing:.06em;margin-left:6px;opacity:.6;}
+
+/* KEY BAR */
+.key-bar{display:flex;align-items:center;gap:.5rem;padding:.8rem 2rem;border-bottom:.5px solid var(--border);flex-wrap:wrap;}
+.key-lbl{font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-right:2px;flex-shrink:0;}
+.ki{display:inline-flex;align-items:center;gap:5px;font-size:10.5px;color:var(--muted);cursor:pointer;padding:3px 10px;border-radius:14px;border:.5px solid transparent;transition:all .18s;white-space:nowrap;}
+.ki:hover{background:var(--tag-bg);color:var(--text);}
+.ki.on{background:var(--tag-bg2);color:var(--text);border-color:var(--border);}
+.kd{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+
+/* DOT COLORS */
+.d-elite{background:var(--text);}
+.d-power{background:#c084fc;}
+.d-inst{background:#f7c948;}
+.d-spec{background:#00e8a2;}
+.d-net{background:#f87c7c;}
+.d-legacy{background:transparent;border:1.5px solid var(--muted);}
+.d-fire{background:#00e8a2;}
+.d-rising{background:#f7c948;}
+.d-classic{background:transparent;border:1.5px solid var(--muted);}
+.d-new{background:#4ef0f0;}
+.d-tie{background:#9b8ff5;}
+.d-best{background:var(--text);}
+
+/* ENTRIES */
+.entries{padding:0;}
+.entry{border-bottom:.5px solid var(--border);cursor:pointer;transition:background .12s;}
+.entry:hover{background:var(--card);}
+.e-main{display:grid;grid-template-columns:3.5rem 1fr auto;align-items:start;padding:1.4rem 2rem;}
+.e-num{font-size:clamp(2rem,5vw,3.2rem);font-weight:900;color:var(--num);line-height:1;padding-top:3px;font-variant-numeric:tabular-nums;}
+.e-body{padding:0 1rem 0 .8rem;}
+.e-name{font-size:clamp(1rem,2.6vw,1.4rem);font-weight:800;text-transform:uppercase;letter-spacing:.035em;color:var(--text);line-height:1.1;display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+.tie-tag{font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;background:rgba(124,95,245,.22);color:var(--accent2);padding:2px 7px;border-radius:8px;flex-shrink:0;}
+.e-meta{font-size:10.5px;text-transform:uppercase;letter-spacing:.09em;color:var(--muted);margin:5px 0 .5rem;}
+.e-blurb{font-size:13px;color:var(--muted);line-height:1.6;font-style:italic;}
+.e-right{display:flex;flex-direction:column;align-items:flex-end;gap:5px;}
+.e-badge{display:flex;flex-direction:column;align-items:center;gap:3px;min-width:62px;text-align:center;}
+.bd{width:9px;height:9px;border-radius:50%;}
+.bl{font-size:8px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);line-height:1.3;}
+.chev{font-size:11px;color:var(--muted);transition:transform .28s;margin-top:4px;}
+.chev.open{transform:rotate(180deg);}
+
+/* EXPAND */
+.e-exp{overflow:hidden;max-height:0;transition:max-height .38s ease;}
+.e-exp.open{max-height:500px;}
+.exp-in{padding:0 2rem 1.8rem;padding-left:calc(3.5rem + .8rem + 2rem);display:grid;grid-template-columns:1fr 1fr;gap:.75rem;}
+.eb{background:var(--exp);border-radius:10px;padding:.85rem 1rem;border:.5px solid var(--border);}
+.eb-lbl{font-size:9px;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);margin-bottom:5px;}
+.eb-txt{font-size:12.5px;color:var(--text);line-height:1.6;}
+
+/* FOOTER */
+.hi-foot{padding:1.1rem 2rem;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;border-top:.5px solid var(--border);}
+.hi-foot span{font-size:10.5px;color:var(--muted);}
+
+/* PANEL */
+.panel{display:none;}
+.panel.active{display:block;}
+</style>
+</head>
+<body>
+<div id="app">
+
+  <div class="hi-header">
+    <div class="hi-eyebrow">What's Good Miami</div>
+    <div class="hi-title">The Heat Index</div>
+    <div class="hi-meta-row">
+      <div class="hi-tagline">Miami's most trusted rankings.<br>Placement is never for sale.</div>
+      <div class="hi-meta-right">
+        <button class="tog-btn" id="togBtn" onclick="toggleMode()">☀ Light mode</button>
+        <div class="hi-vol">Vol. 01</div>
+        <div class="hi-date">Mar 2026</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="tab-bar" style="padding:0 2rem;">
+    <div class="tab active" onclick="switchTab('restaurants',this)">Restaurants <span class="tab-vol">Vol. 01</span></div>
+    <div class="tab" onclick="switchTab('brokers',this)">Brokers <span class="tab-vol">Vol. 01</span></div>
+  </div>
+
+  <!-- RESTAURANTS PANEL -->
+  <div class="panel active" id="panel-restaurants">
+    <div class="key-bar" id="key-restaurants">
+      <span class="key-lbl">Key</span>
+      <span class="ki on" onclick="setFilter('restaurants','all',this)">All</span>
+      <span class="ki" onclick="setFilter('restaurants','best',this)"><span class="kd d-best"></span>Best of Best</span>
+      <span class="ki" onclick="setFilter('restaurants','fire',this)"><span class="kd d-fire"></span>On Fire</span>
+      <span class="ki" onclick="setFilter('restaurants','classic',this)"><span class="kd d-classic"></span>Classic</span>
+      <span class="ki" onclick="setFilter('restaurants','new',this)"><span class="kd d-new"></span>New</span>
+      <span class="ki" onclick="setFilter('restaurants','tie',this)"><span class="kd d-tie"></span>Tie</span>
+    </div>
+    <div class="entries" id="list-restaurants"></div>
+  </div>
+
+  <!-- BROKERS PANEL -->
+  <div class="panel" id="panel-brokers">
+    <div class="key-bar" id="key-brokers">
+      <span class="key-lbl">Key</span>
+      <span class="ki on" onclick="setFilter('brokers','all',this)">All</span>
+      <span class="ki" onclick="setFilter('brokers','elite',this)"><span class="kd d-elite"></span>Elite Tier</span>
+      <span class="ki" onclick="setFilter('brokers','power',this)"><span class="kd d-power"></span>Power Broker</span>
+      <span class="ki" onclick="setFilter('brokers','inst',this)"><span class="kd d-inst"></span>Institution Builder</span>
+      <span class="ki" onclick="setFilter('brokers','spec',this)"><span class="kd d-spec"></span>Specialist</span>
+      <span class="ki" onclick="setFilter('brokers','net',this)"><span class="kd d-net"></span>Networker</span>
+    </div>
+    <div class="entries" id="list-brokers"></div>
+  </div>
+
+  <div class="hi-foot">
+    <span>What's Good Miami · Mar 2026</span>
+    <span>Placement never for sale</span>
+  </div>
+</div>
+
+<script>
+const RESTAURANTS = [
+  {rank:1,name:"Boia De",meta:"Little Haiti · Italian",badge:"best",blurb:"Still the #1 locally-earned table. Michelin-starred, no other location diluting the story. Perpetually booked 30 days out.",details:{"Why it's #1":"Michelin-starred with zero compromise. The most consistent fine dining room in Miami, built entirely on local reputation.","Insider tip":"Reservations open exactly 30 days out at midnight. Set your alarm.","Cuisine":"Italian","Neighborhood":"Little Haiti"}},
+  {rank:2,name:"Sunny's Steakhouse",meta:"Miami · Steakhouse",badge:"best",blurb:"Made the February 2026 local food editor's personal best-meals list. Chef-industry hangout during SBWFF.",details:{"Why it's here":"The steakhouse that chefs go to when they're off the clock. That says everything.","Insider tip":"Go during SBWFF week for a master class in who runs this city's food scene.","Cuisine":"Steakhouse","Neighborhood":"Miami"}},
+  {rank:3,name:"Recoveco",meta:"South Miami · Chef-Driven",badge:"fire",blurb:"The kind of opening that reminds you why Miami's neighborhood restaurant scene is worth paying attention to.",details:{"Why it's here":"A debut that landed with the confidence of a restaurant that's been open for years. South Miami's best new table.","Insider tip":"Walk-ins possible early in the week. Book well ahead on weekends.","Cuisine":"Chef-Driven","Neighborhood":"South Miami"}},
+  {rank:4,name:"Cote",meta:"Design District · Korean Steakhouse",badge:"best",blurb:"Michelin-starred. The Butcher's Feast remains one of the best value moves in Miami fine dining.",details:{"Why it's here":"The Butcher's Feast is four cuts, unlimited sides, egg soufflé, and dessert for a fixed price. Unbeatable value at this tier.","Insider tip":"Order the Butcher's Feast. Don't overthink it.","Cuisine":"Korean Steakhouse","Neighborhood":"Design District"}},
+  {rank:5,name:"Walrus Rodeo",meta:"Little Haiti · American",badge:"fire",blurb:"Chef-industry hangout of SBWFF week. A spot that rewards locals over tourists — no hype machine, just quality.",details:{"Why it's here":"The anti-hype restaurant that keeps winning. Regulars love it precisely because it never tries too hard.","Cuisine":"American","Neighborhood":"Little Haiti"}},
+  {rank:6,name:"Yasu Omakase",meta:"Miami · Japanese Omakase",badge:"fire",blurb:"Opened Jan 14, 2026. 8-seat counter, $250 omakase, prime time on Dorsia only. Purely Miami, nowhere else.",details:{"Why it's here":"Eight seats. Total focus. One of the most intentional omakase debuts South Florida has seen.","Insider tip":"Book through Dorsia. Prime slots disappear in under an hour.","Cuisine":"Japanese Omakase","Neighborhood":"Miami"}},
+  {rank:7,name:"Fooq's",meta:"Little River · Persian-French",badge:"fire",blurb:"Reopened Jan 23 after a four-year hiatus. The most emotionally resonant comeback in recent Miami dining memory.",details:{"Why it's here":"Four years away made the city realize how much it needed this place.","Cuisine":"Persian-French","Neighborhood":"Little River"}},
+  {rank:8,name:"ViceVersa",meta:"Downtown Miami · Italian",badge:"fire",blurb:"Quietly becoming the industry insider's favorite Italian in Miami. No velvet ropes, no performance.",details:{"Why it's here":"The restaurant that insiders find before the crowds do.","Cuisine":"Italian","Neighborhood":"Downtown Miami"}},
+  {rank:9,name:"Macchialina",meta:"South Beach · Italian",badge:"classic",blurb:"Brought back their pasta omakase at the bar on Wednesdays as of Feb 2026. Locally beloved for years.",details:{"Why it's here":"A South Beach institution that earns its spot every single week.","Cuisine":"Italian","Neighborhood":"South Beach"}},
+  {rank:10,name:"Nami Nori & Pari Pari",meta:"Design District / Wynwood · Japanese — Tie",badge:"tie",tie:true,blurb:"Two different expressions of the same idea. Argue about which is better. You're going to both.",details:{"Why it's here":"A tie worth having. Both are essential.","Cuisine":"Japanese Handroll","Neighborhood":"Design District / Wynwood"}},
+  {rank:11,name:"Daniel's Miami",meta:"Coral Gables · Steakhouse",badge:"fire",blurb:"Arrived in 2025 and immediately felt like it had been there for years. Fine dining polish with genuine neighborhood soul.",details:{"Why it's here":"The steakhouse that earned its regulars before the press caught up.","Cuisine":"Steakhouse","Neighborhood":"Coral Gables"}},
+  {rank:12,name:"La Petite Maison",meta:"Brickell · French Mediterranean",badge:"classic",blurb:"Miami locals are coming back around to it. A consistency that most restaurants at this price point can't touch.",details:{"Why it's here":"Quite possibly the best restaurant in Miami. A consistent 10.","Cuisine":"French Mediterranean","Neighborhood":"Brickell"}},
+  {rank:13,name:"Thomas Keller at The Surf Club",meta:"Surfside · American Fine Dining",badge:"classic",blurb:"A benchmark meal for anyone who wants to understand technical precision at the highest level in South Florida.",details:{"Why it's here":"The standard for what fine dining looks like when it's done right.","Cuisine":"American Fine Dining","Neighborhood":"Surfside"}},
+  {rank:14,name:"The Joyce",meta:"South Beach · Speakeasy Bar",badge:"fire",blurb:"The burger won a local food editor's personal vote at SBWFF's Burger Bash. Still on the city's monthly Hit List.",details:{"Why it's here":"A speakeasy that earned its reputation one burger at a time.","Cuisine":"Speakeasy Bar","Neighborhood":"South Beach"}},
+  {rank:15,name:"Marc's & Peppi's Pizza",meta:"North Beach / Design District · Pizza — Tie",badge:"tie",tie:true,blurb:"Two different pizza conversations, both worth having. You should be going to both.",details:{"Why it's here":"Miami finally has pizza worth arguing about.","Cuisine":"Pizza","Neighborhood":"North Beach / Design District"}},
+  {rank:16,name:"Ezio's",meta:"North Beach · Italian",badge:"new",blurb:"The Roberta's team brings their ethos to North Beach. A serious opening landing quietly and building its reputation the right way.",details:{"Why it's here":"Building a reputation the right way, one table at a time.","Cuisine":"Italian","Neighborhood":"North Beach"}},
+  {rank:17,name:"Ophelia",meta:"Coconut Grove · Bakery",badge:"fire",blurb:"An RV in a Grove lot that sells out by 9am Thursday–Saturday. Selected for the Miami Open culinary roster. Still just an RV.",details:{"Why it's here":"The most absurd and most deserved success story on this list.","Cuisine":"Bakery","Neighborhood":"Coconut Grove"}},
+  {rank:18,name:"Yamashiro",meta:"Miami Worldcenter · Japanese",badge:"new",blurb:"Landed with quiet confidence. The kind of opening that builds a devoted following before the press catches up.",details:{"Why it's here":"Watch this one.","Cuisine":"Japanese","Neighborhood":"Miami Worldcenter"}},
+  {rank:19,name:"Felice",meta:"Brickell · Italian",badge:"fire",blurb:"The truest taste of Italy on the Brickell corridor. No oversaucing, no shortcuts, no need to announce itself.",details:{"Why it's here":"Quietly one of the best Italian restaurants in the city.","Cuisine":"Italian","Neighborhood":"Brickell"}},
+  {rank:20,name:"Sunshine Coffee",meta:"Miami Beach · Coffee",badge:"fire",blurb:"The iced coffee is the best in the state of Florida. A brand that earns everything through the cup.",details:{"Why it's here":"The best iced coffee in Florida. That's a real claim and it holds up.","Cuisine":"Coffee","Neighborhood":"Miami Beach"}},
+  {rank:21,name:"Papi Steak",meta:"South Beach · Steakhouse",badge:"classic",blurb:"The TikTok volume is enormous, but it's tourists filming the beef case. A spectacle worth experiencing once.",details:{"Why it's here":"A classic Miami experience. Go once. Mean it.","Cuisine":"Steakhouse","Neighborhood":"South Beach"}},
+  {rank:22,name:"Karyu",meta:"Design District · Wagyu Kaiseki",badge:"new",blurb:"U.S. debut of Tokyo's Michelin-starred Oniku Karyu. Twelve seats, total focus. Too new to rank higher but impossible to ignore.",details:{"Why it's here":"Twelve seats. Zero compromises. One of the most important openings of 2026.","Cuisine":"Wagyu Kaiseki","Neighborhood":"Design District"}},
+  {rank:23,name:"Caracas",meta:"Miami · Venezuelan",badge:"fire",blurb:"Never needs to be on a list to stay full. Arepas that haven't changed because they don't need to.",details:{"Why it's here":"The restaurant that doesn't need a list to stay full. That's the highest compliment.","Cuisine":"Venezuelan","Neighborhood":"Miami"}},
+  {rank:24,name:"Pastis & Makoto",meta:"Wynwood / Bal Harbour · French & Japanese — Tie",badge:"tie",tie:true,blurb:"Both consistently packed, both great rooms. National names that locals still go to.",details:{"Why it's here":"The reliable classics. Both worth your time, neither needs your help.","Cuisine":"French & Japanese","Neighborhood":"Wynwood / Bal Harbour"}},
+  {rank:25,name:"Vecinos",meta:"Mid-Beach · Neighborhood",badge:"new",blurb:"The newest name on this list. Neighborhood-first energy. Locals find it first. Watch this one.",details:{"Why it's here":"The most important words in Miami dining: locals find it first.","Cuisine":"Neighborhood","Neighborhood":"Mid-Beach"}}
+];
+
+const R_BADGES = {
+  best:{label:"Best of Best",dc:"d-best"},
+  fire:{label:"On Fire",dc:"d-fire"},
+  classic:{label:"Classic",dc:"d-classic"},
+  new:{label:"New",dc:"d-new"},
+  tie:{label:"Tie",dc:"d-tie"}
+};
+
+const BROKERS = [
+  {rank:1,name:"The Jills Zeder Group",meta:"Coldwell Banker · Miami-Dade",badge:"elite",blurb:"The undisputed #1 agent team in Miami-Dade, closing nearly $1.4 billion in sales. Dynasty-level presence.",details:{"Volume":"Nearly $1.4 billion in sales in the most recent ranking period.","Why #1":"Jill Eber, Jill Hertzberg, and Judy Zeder. Three names. One dynasty. No one else is close.","Known for":"Ultra-luxury waterfront estates. Star Island. Indian Creek. The definitive ultra-high-net-worth rolodex.","Brokerage":"Coldwell Banker Realty"}},
+  {rank:2,name:"Chad Carroll",meta:"Compass · Carroll Group",badge:"elite",blurb:"$544.9 million in sales. One of Miami's most visible luxury operators and a vocal voice on industry trends.",details:{"Volume":"$544.9 million in sales, second overall.","Why he's here":"Visibility, volume, and an opinion on everything — and usually right.","Known for":"Miami luxury at scale. Off-market access. Compass's standard-bearer in South Florida.","Brokerage":"Compass"}},
+  {rank:3,name:"Dina Goldentayer",meta:"Douglas Elliman · Miami",badge:"elite",blurb:"$460.2 million in sales. Consistently one of the most respected names in Miami luxury.",details:{"Volume":"$460.2 million in sales, third overall.","Why she's here":"Year after year. No drama, no shortcuts. Just volume and respect.","Known for":"Miami luxury residential. Ultra-high-net-worth buyers. Repeat clientele.","Brokerage":"Douglas Elliman"}},
+  {rank:4,name:"Dora Puig",meta:"Luxe Living Realty · Coral Gables",badge:"elite",blurb:"$362.4 million in sales and the broker-owner of her own boutique firm. A $1 billion development sellout at Fisher Island.",details:{"Volume":"$362.4 million in sales, fourth overall.","Why she's here":"A rare example of a top producer who also built a lasting brokerage. Personal volume plus institutional influence.","Known for":"Ultra-luxury and boutique condo development. Fisher Island. Coral Gables. Coconut Grove.","Brokerage":"Luxe Living Realty (Founder)"}},
+  {rank:5,name:"Nelson Gonzalez",meta:"Berkshire Hathaway HomeServices EWM · Miami Beach",badge:"elite",blurb:"$347.8 million in sales. One of the longest-standing ultra-luxury names in Miami Beach, rocketing back into the top 5.",details:{"Volume":"$347.8 million in sales, rocketing back after falling off the prior year's ranking.","Why he's here":"The institutional memory of Miami Beach real estate. Clients trust him because he has seen every cycle.","Known for":"South of Fifth. Miami Beach single-family. Long-term client relationships.","Brokerage":"Berkshire Hathaway HomeServices EWM"}},
+  {rank:6,name:"Nancy Batchelor",meta:"Compass · Coral Gables / South Miami",badge:"power",blurb:"Veteran top producer, especially strong in Coral Gables and South Miami. One of the most quoted voices in the market.",details:{"Why she's here":"Market knowledge deep enough to quote and deal volume to back it up.","Known for":"Coral Gables. South Miami. Media presence and market commentary.","Brokerage":"Compass","Specialty":"Luxury Residential. Coral Gables Corridor."}},
+  {rank:7,name:"Julian Johnston",meta:"Douglas Elliman · Miami Beach",badge:"power",blurb:"One of Elliman's top producers in Miami Beach. Known for off-market ultra-luxury deals.",details:{"Why he's here":"Off-market access at the ultra-luxury level is a different skill set. Julian has it.","Known for":"Miami Beach ultra-luxury. Off-market transactions. HNW domestic buyers.","Brokerage":"Douglas Elliman","Specialty":"Ultra-Luxury. Off-Market."}},
+  {rank:8,name:"Riley Smith",meta:"Compass · Miami Beach",badge:"power",blurb:"Rising force in Miami luxury. Strong presence in Miami Beach and waterfront properties.",details:{"Why he's here":"The trajectory is real and the waterfront market is exactly where you want to be right now.","Known for":"Miami Beach luxury. Waterfront properties. Compass's next generation.","Brokerage":"Compass","Specialty":"Luxury Waterfront. Miami Beach."}},
+  {rank:9,name:"Jordan Karp",meta:"The Brokerage South Florida Real Estate",badge:"power",blurb:"One of the newer names to break into the top agent ranks in Miami-Dade. A name to know.",details:{"Why he's here":"Breaking into the top tier of Miami-Dade from outside the institutional platforms. That's hard. He did it.","Known for":"Miami-Dade luxury residential. Independent platform production.","Brokerage":"The Brokerage South Florida Real Estate","Specialty":"Luxury Residential. Miami-Dade."}},
+  {rank:10,name:"Joel Lusky",meta:"The Brokerage South Florida Real Estate",badge:"power",blurb:"A record $20.7M waterfront mansion in North Miami and a $23M waterfront home in Bal Harbour. A relationship-first operator breaking into the elite tier.",details:{"Why he's here":"Two record sales in one cycle. Relationship-first, volume-second. The right order.","Known for":"Waterfront records. North Miami. Bal Harbour. Relationship-driven closings.","Brokerage":"The Brokerage South Florida Real Estate","Specialty":"Waterfront Luxury. Record Sales."}},
+  {rank:11,name:"Jay Parker",meta:"Douglas Elliman · Florida CEO",badge:"inst",blurb:"Runs Elliman's Florida operation. A steady hand through Miami's most turbulent market cycles.",details:{"Why he's here":"You don't run Elliman's Florida platform without leaving a mark on this market.","Known for":"Platform leadership. Market cycle management. Elliman's Florida growth story.","Role":"Florida CEO, Douglas Elliman","Influence":"Statewide brokerage operations"}},
+  {rank:12,name:"Duff Rubin",meta:"Coldwell Banker · Southeast Regional President",badge:"inst",blurb:"One of the clearest public voices on Miami's bifurcated market dynamics.",details:{"Why he's here":"The broker who explains Miami's market better than almost anyone. That's its own kind of power.","Known for":"Market analysis. Public commentary. Coldwell Banker's Southeast footprint.","Role":"Southeast Regional President, Coldwell Banker","Influence":"Regional market leadership"}},
+  {rank:13,name:"Pam Liebman",meta:"Corcoran Group · CEO",badge:"inst",blurb:"A national power player with growing Miami presence and sharp macro perspective on the luxury market.",details:{"Why she's here":"National scale, Miami ambition, and a macro read on luxury that most local operators don't have.","Known for":"Corcoran's national platform. Luxury market perspective. Growing Miami footprint.","Role":"CEO, Corcoran Group","Influence":"National luxury platform with Miami expansion"}},
+  {rank:14,name:"George CancioBello",meta:"Lifestyle International Realty · Owner",badge:"inst",blurb:"A vocal and prominent brokerage owner shaping how independent firms navigate the new commission landscape.",details:{"Why he's here":"The commission landscape changed. George is one of the loudest and most credible voices on what it means.","Known for":"Independent brokerage leadership. Commission structure advocacy. Miami market voice.","Role":"Owner, Lifestyle International Realty","Influence":"Independent brokerage ecosystem"}},
+  {rank:15,name:"Ines Hegedus-Garcia",meta:"Avanti Way East Miami · Co-Owner",badge:"inst",blurb:"Built the Miamism brand into a nationally recognized voice while leading one of Miami's fastest-growing independent brokerages.",details:{"Why she's here":"Built a brand and a brokerage simultaneously. The Miamism name travels far beyond Miami.","Known for":"Miamism. Independent brokerage growth. National real estate media presence.","Role":"Co-Owner, Avanti Way East Miami","Influence":"Brand-building. Independent brokerage leadership."}},
+  {rank:16,name:"David Siddons",meta:"Douglas Elliman · David Siddons Group",badge:"spec",blurb:"17 years specializing in pre-construction and resale condos. Super-broker status with most Miami developments gives him first access to inventory.",details:{"Why he's here":"First access to inventory is everything in pre-construction. David engineered that access over 17 years.","Known for":"Pre-construction advisory. Resale condos. Market intelligence reports. Development relationships.","Brokerage":"Douglas Elliman / David Siddons Group","Specialty":"Pre-Construction. Condo Specialist."}},
+  {rank:17,name:"Stefania Cambarau",meta:"Douglas Elliman · David Siddons Group",badge:"spec",blurb:"The definitive broker in Miami Beach, Surfside, and Bal Harbour. Co-brokered the highest resale ever recorded at Eighty-Seven Park at $20.5M.",details:{"Why she's here":"Geographic dominance of the most architecturally significant stretch of Miami real estate.","Known for":"Miami Beach. Surfside. Bal Harbour. Record resale at Eighty-Seven Park ($20.5M).","Brokerage":"Douglas Elliman / David Siddons Group","Specialty":"Miami Beach. Surfside. Bal Harbour."}},
+  {rank:18,name:"Pauline Portnoy",meta:"Compass · Brickell / Downtown",badge:"spec",blurb:"One of Brickell and downtown Miami's most connected luxury condo specialists.",details:{"Why she's here":"Brickell is the fastest-growing luxury market in the city. Pauline is its specialist.","Known for":"Brickell luxury condos. Downtown Miami. Condo market expertise.","Brokerage":"Compass","Specialty":"Brickell. Downtown Miami. Luxury Condos."}},
+  {rank:19,name:"Alicia Cervera Lamadrid",meta:"Cervera Real Estate · Managing Partner",badge:"spec",blurb:"Third-generation leader of one of Miami's most storied local brokerages. Deep Cuban-American community roots and major pre-construction relationships.",details:{"Why she's here":"Three generations of institutional knowledge and a pre-construction pipeline that runs through the most important communities in Miami.","Known for":"Cervera's legacy platform. Pre-construction. Cuban-American community network.","Brokerage":"Cervera Real Estate (Managing Partner)","Specialty":"Pre-Construction. Community Networks."}},
+  {rank:20,name:"Ron Shuffield",meta:"Berkshire Hathaway HomeServices EWM · President",badge:"spec",blurb:"One of the most data-driven and historically significant brokerage leaders in South Florida.",details:{"Why he's here":"Institutional power. Ron doesn't just close deals. He influences the entire South Florida market structure.","Known for":"Market data and commentary. EWM's institutional market share. South Florida brokerage history.","Role":"President, Berkshire Hathaway HomeServices EWM","Specialty":"Market Leadership. Historical Perspective."}},
+  {rank:21,name:"Ruthie Assouline",meta:"Compass · Coconut Grove / Coral Gables",badge:"net",blurb:"Known for off-market access and ultra-high-net-worth client relationships across Coconut Grove and Coral Gables.",details:{"Why she's here":"Off-market relationships at the UHNWi level are built over years. Ruthie has them.","Known for":"Off-market access. Coconut Grove. Coral Gables. UHNWi relationships.","Brokerage":"Compass","Specialty":"Off-Market. Coconut Grove. Coral Gables."}},
+  {rank:22,name:"Lourdes Alatriste",meta:"One Sotheby's International Realty · Brickell",badge:"net",blurb:"Major presence in Brickell and international buyer markets, especially Latin America.",details:{"Why she's here":"The Latin American buyer network is the lifeblood of the Brickell market. Lourdes is a central node in it.","Known for":"Brickell luxury. Latin American buyer network. International buyer representation.","Brokerage":"One Sotheby's International Realty","Specialty":"International Buyers. Brickell."}},
+  {rank:23,name:"Danny Hertzberg",meta:"Coldwell Banker · The Jills Zeder Group",badge:"net",blurb:"Next-generation member of the Jills team and a force on his own, particularly in digital and social real estate marketing.",details:{"Why he's here":"Carrying the most recognized name in Miami luxury and building his own track record independently. The succession is real.","Known for":"The Jills Zeder brand. Digital and social marketing. Next-generation HNW buyers.","Brokerage":"Coldwell Banker Realty","Specialty":"Next-Gen Marketing. Luxury Waterfront."}},
+  {rank:24,name:"Nitin Gupta",meta:"Compass · Miami",badge:"net",blurb:"Fast-rising producer with strong penetration into the tech-wealth and international buyer segments.",details:{"Why he's here":"Tech wealth and international capital are two of the biggest tailwinds in Miami right now. Nitin is positioned at both.","Known for":"Tech-wealth buyers. International buyer segment. Fast-rising Compass production.","Brokerage":"Compass","Specialty":"Tech Wealth. International Buyers."}},
+  {rank:25,name:"Vivian Dimond",meta:"One Sotheby's International Realty · Coconut Grove",badge:"net",blurb:"One of Miami's most consistent luxury producers, particularly in Coconut Grove and the Roads.",details:{"Why she's here":"Consistency over years in some of Miami's most desirable neighborhoods. The first call when something serious is happening in the Grove.","Known for":"Coconut Grove. The Roads. Consistent luxury production.","Brokerage":"One Sotheby's International Realty","Specialty":"Coconut Grove. The Roads. Luxury Residential."}}
+];
+
+const B_BADGES = {
+  elite:{label:"Elite Tier",dc:"d-elite"},
+  power:{label:"Power Broker",dc:"d-power"},
+  inst:{label:"Institution Builder",dc:"d-inst"},
+  spec:{label:"Specialist",dc:"d-spec"},
+  net:{label:"Networker",dc:"d-net"}
+};
+
+const filters = {restaurants:"all", brokers:"all"};
+let isLight = false;
+let openEntry = {restaurants:null, brokers:null};
+
+function toggleMode(){
+  isLight=!isLight;
+  document.body.classList.toggle("lm",isLight);
+  document.getElementById("togBtn").innerHTML=isLight?"☾ Dark mode":"☀ Light mode";
+}
+
+function switchTab(tab, el){
+  document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
+  document.querySelectorAll(".panel").forEach(p=>p.classList.remove("active"));
+  el.classList.add("active");
+  document.getElementById("panel-"+tab).classList.add("active");
+}
+
+function setFilter(tab, f, el){
+  filters[tab]=f;
+  const bar = document.getElementById("key-"+tab);
+  bar.querySelectorAll(".ki").forEach(k=>k.classList.remove("on"));
+  el.classList.add("on");
+  renderList(tab);
+}
+
+function renderList(tab){
+  const data = tab==="restaurants" ? RESTAURANTS : BROKERS;
+  const badges = tab==="restaurants" ? R_BADGES : B_BADGES;
+  const f = filters[tab];
+  const filtered = f==="all" ? data : data.filter(x=>x.badge===f);
+  const el = document.getElementById("list-"+tab);
+  el.innerHTML = filtered.map(x=>{
+    const cfg = badges[x.badge];
+    const isLegacy = x.badge==="classic"||x.badge==="legacy";
+    const dotStyle = isLegacy ? `style="background:transparent;border:1.5px solid var(--muted);"` : "";
+    const blocks = Object.entries(x.details).map(([k,v])=>`
+      <div class="eb"><div class="eb-lbl">${k}</div><div class="eb-txt">${v}</div></div>`).join("");
+    return `
+    <div class="entry" onclick="toggleExp('${tab}',${x.rank})">
+      <div class="e-main">
+        <div class="e-num">${x.rank}</div>
+        <div class="e-body">
+          <div class="e-name">${x.name}${x.tie?'<span class="tie-tag">Tie</span>':""}</div>
+          <div class="e-meta">${x.meta}</div>
+          <div class="e-blurb">${x.blurb}</div>
+        </div>
+        <div class="e-right">
+          <div class="e-badge">
+            <div class="bd ${cfg.dc}" ${dotStyle}></div>
+            <div class="bl">${cfg.label}</div>
+          </div>
+          <div class="chev" id="chev-${tab}-${x.rank}">▼</div>
+        </div>
+      </div>
+      <div class="e-exp" id="exp-${tab}-${x.rank}">
+        <div class="exp-in">${blocks}</div>
+      </div>
+    </div>`;
+  }).join("");
+}
+
+function toggleExp(tab, rank){
+  const panel = document.getElementById(`exp-${tab}-${rank}`);
+  const chev  = document.getElementById(`chev-${tab}-${rank}`);
+  const isOpen = panel.classList.contains("open");
+  document.querySelectorAll(`#list-${tab} .e-exp`).forEach(p=>p.classList.remove("open"));
+  document.querySelectorAll(`#list-${tab} .chev`).forEach(c=>c.classList.remove("open"));
+  if(!isOpen){panel.classList.add("open");chev.classList.add("open");}
+}
+
+renderList("restaurants");
+renderList("brokers");
+</script>
+</body>
+</html>
