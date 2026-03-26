@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Heat Index — Miami Brokers</title>
+<style>
+  :root {
+    --bg: #0f0a2e;
+    --surface: #1a1245;
+    --accent: #3d1fe0;
+    --accent2: #7c5ff5;
+    --tag-bg: rgba(255,255,255,0.09);
+    --tag-bg2: rgba(124,95,245,0.18);
+    --text: #ffffff;
+    --muted: rgba(255,255,255,0.55);
+    --border: rgba(255,255,255,0.12);
+    --num-color: rgba(255,255,255,0.13);
+    --card-bg: rgba(255,255,255,0.04);
+    --expand-bg: rgba(255,255,255,0.06);
+    --toggle-bg: rgba(255,255,255,0.1);
+  }
+  .light {
+    --bg: #f0eeff;
+    --surface: #ffffff;
+    --accent: #3d1fe0;
+    --accent2: #5a3fcc;
+    --tag-bg: #ede9fe;
+    --tag-bg2: rgba(93,63,204,0.1);
+    --text: #12084a;
+    --muted: #6e5faa;
+    --border: #ccc4f5;
+    --num-color: #d8d0f5;
+    --card-bg: rgba(93,63,204,0.05);
+    --expand-bg: rgba(93,63,204,0.07);
+    --toggle-bg: #e8e3ff;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; transition: background 0.3s; min-height: 100vh; }
+  #app { max-width: 860px; margin: 0 auto; padding: 0 0 3rem; }
+
+  .hi-header { padding: 2.5rem 2rem 1.5rem; }
+  .hi-eyebrow { font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted); margin-bottom: 0.6rem; }
+  .hi-title { font-size: clamp(2.8rem, 7vw, 4.5rem); font-weight: 900; color: var(--text); line-height: 0.92; text-transform: uppercase; letter-spacing: -0.025em; margin-bottom: 0.35rem; }
+  .hi-subtitle { font-size: clamp(0.9rem, 2.5vw, 1.25rem); font-weight: 700; text-transform: uppercase; letter-spacing: 0.12em; color: var(--muted); margin-bottom: 1.4rem; }
+  .hi-meta-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; flex-wrap: wrap; }
+  .hi-tagline { font-size: 12.5px; color: var(--muted); line-height: 1.6; max-width: 300px; }
+  .hi-meta-right { display: flex; flex-direction: column; align-items: flex-end; gap: 8px; }
+  .hi-vol { font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); }
+  .hi-date { font-size: 1.4rem; font-weight: 800; color: var(--text); }
+  .toggle-btn { background: var(--toggle-bg); border: 0.5px solid var(--border); border-radius: 20px; padding: 5px 14px; font-size: 11.5px; color: var(--muted); cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: all 0.2s; white-space: nowrap; }
+  .toggle-btn:hover { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+  .key-bar { display: flex; align-items: center; gap: 0.6rem; padding: 0.8rem 2rem; border-top: 0.5px solid var(--border); border-bottom: 0.5px solid var(--border); flex-wrap: wrap; }
+  .key-label { font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); margin-right: 2px; flex-shrink: 0; }
+  .key-item { display: inline-flex; align-items: center; gap: 5px; font-size: 10.5px; color: var(--muted); cursor: pointer; padding: 3px 10px; border-radius: 14px; border: 0.5px solid transparent; transition: all 0.18s; white-space: nowrap; }
+  .key-item:hover { background: var(--tag-bg); color: var(--text); }
+  .key-item.active { background: var(--tag-bg2); color: var(--text); border-color: var(--border); }
+  .key-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+  .dot-dominant { background: var(--text); }
+  .dot-fire { background: #00e8a2; }
+  .dot-rising { background: #f7c948; }
+  .dot-power { background: #c084fc; }
+  .dot-legacy { background: transparent; border: 1.5px solid var(--muted); }
+
+  .entries { padding: 0; }
+  .entry { border-bottom: 0.5px solid var(--border); cursor: pointer; transition: background 0.12s; }
+  .entry:hover { background: var(--card-bg); }
+  .entry-main { display: grid; grid-template-columns: 3.5rem 1fr auto; gap: 0; align-items: start; padding: 1.4rem 2rem; }
+  .entry-num { font-size: clamp(2.2rem, 5vw, 3.2rem); font-weight: 900; color: var(--num-color); line-height: 1; padding-top: 3px; font-variant-numeric: tabular-nums; }
+  .entry-body { padding: 0 1rem 0 0.8rem; }
+  .entry-name { font-size: clamp(1.05rem, 2.8vw, 1.5rem); font-weight: 800; text-transform: uppercase; letter-spacing: 0.035em; color: var(--text); line-height: 1.1; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .tie-tag { font-size: 9px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; background: rgba(124,95,245,0.22); color: var(--accent2); padding: 2px 7px; border-radius: 8px; flex-shrink: 0; }
+  .entry-meta { font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.09em; color: var(--muted); margin: 5px 0 0.55rem; }
+  .entry-blurb { font-size: 13px; color: var(--muted); line-height: 1.6; font-style: italic; }
+  .entry-right { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; }
+  .entry-badge { display: flex; flex-direction: column; align-items: center; gap: 3px; min-width: 58px; text-align: center; }
+  .badge-dot { width: 9px; height: 9px; border-radius: 50%; }
+  .badge-label { font-size: 8.5px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); line-height: 1.25; }
+  .chevron { font-size: 12px; color: var(--muted); transition: transform 0.28s; margin-top: 4px; }
+  .chevron.open { transform: rotate(180deg); }
+
+  .entry-expand { overflow: hidden; max-height: 0; transition: max-height 0.38s ease; }
+  .entry-expand.open { max-height: 600px; }
+  .expand-inner { padding: 0 2rem 1.8rem; padding-left: calc(3.5rem + 0.8rem + 2rem); display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+  .expand-block { background: var(--expand-bg); border-radius: 10px; padding: 0.85rem 1rem; border: 0.5px solid var(--border); }
+  .expand-block-label { font-size: 9px; text-transform: uppercase; letter-spacing: 0.12em; color: var(--muted); margin-bottom: 5px; }
+  .expand-block-text { font-size: 12.5px; color: var(--text); line-height: 1.6; }
+
+  .hi-footer { padding: 1.1rem 2rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; border-top: 0.5px solid var(--border); }
+  .hi-footer-text { font-size: 10.5px; color: var(--muted); }
+</style>
+</head>
+<body>
+<div id="app">
+  <div class="hi-header">
+    <div class="hi-eyebrow">What's Good Miami</div>
+    <div class="hi-title">The Heat Index</div>
+    <div class="hi-subtitle">Real Estate Brokers</div>
+    <div class="hi-meta-row">
+      <div class="hi-tagline">Miami's most trusted rankings.<br>Power, volume, and influence. Not hype.</div>
+      <div class="hi-meta-right">
+        <button class="toggle-btn" id="toggleBtn" onclick="toggleMode()">☀ Light mode</button>
+        <div class="hi-vol">Vol. 01</div>
+        <div class="hi-date">Mar 2026</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="key-bar">
+    <span class="key-label">Key</span>
+    <span class="key-item active" onclick="setFilter('all',this)">All</span>
+    <span class="key-item" onclick="setFilter('dominant',this)"><span class="key-dot dot-dominant"></span>Dominant</span>
+    <span class="key-item" onclick="setFilter('fire',this)"><span class="key-dot dot-fire"></span>On Fire</span>
+    <span class="key-item" onclick="setFilter('rising',this)"><span class="key-dot dot-rising"></span>Rising</span>
+    <span class="key-item" onclick="setFilter('power',this)"><span class="key-dot dot-power"></span>Power Broker</span>
+    <span class="key-item" onclick="setFilter('legacy',this)"><span class="key-dot dot-legacy"></span>Legacy</span>
+  </div>
+
+  <div class="entries" id="entries-list"></div>
+
+  <div class="hi-footer">
+    <span class="hi-footer-text">What's Good Miami · Mar 2026</span>
+    <span class="hi-footer-text">Placement never for sale</span>
+  </div>
+</div>
+
+<script>
+const brokers = [
+  {
+    rank: 1, name: "Jill Hertzberg & Jill Eber", tie: true,
+    meta: "Coldwell Banker · Coconut Grove",
+    badge: "dominant",
+    blurb: "The Two Jills. Miami's most recognized broker duo. Decades of ultra-luxury closings, iconic address portfolio, and a brand that transcends any single brokerage.",
+    details: {
+      "Why #1": "Consistently the highest individual sales volume in South Florida. The name clients call when the address matters.",
+      "Known for": "Ultra-luxury waterfront estates. Star Island. Indian Creek. The definitive ultra-high-net-worth rolodex.",
+      "Brokerage": "Coldwell Banker Realty",
+      "Specialty": "Luxury Residential. Waterfront Estates."
+    }
+  },
+  {
+    rank: 2, name: "Chris Leavitt",
+    meta: "Douglas Elliman · Palm Beach / Miami",
+    badge: "dominant",
+    blurb: "One of the highest-grossing agents in the country. A fixture in the ultra-luxury market with a client list that reads like a Forbes 400 roster.",
+    details: {
+      "Why he's here": "Perennial top producer nationally at Douglas Elliman. A closer who operates at a price point most agents never see.",
+      "Known for": "Nine-figure listings. Discretion. Access to off-market trophy properties.",
+      "Brokerage": "Douglas Elliman",
+      "Specialty": "Ultra-Luxury Residential. Private Sales."
+    }
+  },
+  {
+    rank: 3, name: "Dora Puig",
+    meta: "Luxe Living Realty · Coral Gables",
+    badge: "dominant",
+    blurb: "Founder and broker-owner of Luxe Living Realty. Built one of the most respected independent luxury brands in Miami from the ground up.",
+    details: {
+      "Why she's here": "A rare example of a top producer who also built a lasting brokerage. Combining personal volume with institutional influence.",
+      "Known for": "Coral Gables estates. Coconut Grove. High-end new development sales.",
+      "Brokerage": "Luxe Living Realty (Founder)",
+      "Specialty": "Luxury Residential. Independent Brokerage."
+    }
+  },
+  {
+    rank: 4, name: "Lana Bell & Oren Alexander", tie: true,
+    meta: "Official · Miami Beach",
+    badge: "fire",
+    blurb: "Official is the fastest-moving luxury brokerage name in Miami. The brand commands attention and volume at the top of the market.",
+    details: {
+      "Why they're here": "Official broke into the luxury market at a speed that forced every established player to pay attention.",
+      "Known for": "Miami Beach trophy properties. Developer relationships. Social-media-forward marketing at scale.",
+      "Brokerage": "Official",
+      "Specialty": "Luxury Residential. New Development."
+    }
+  },
+  {
+    rank: 5, name: "Saddy Delgado",
+    meta: "Compass · Brickell / Downtown",
+    badge: "fire",
+    blurb: "One of Compass Miami's top producers. Dominant in the Brickell and downtown condo market, with deep ties in the Latin American buyer network.",
+    details: {
+      "Why she's here": "Latin American buyer pipeline is irreplaceable in Miami. Saddy has built that network better than almost anyone.",
+      "Known for": "Brickell luxury condos. Pre-construction sales. International buyer representation.",
+      "Brokerage": "Compass",
+      "Specialty": "Luxury Condos. International Buyers."
+    }
+  },
+  {
+    rank: 6, name: "Nelson Gonzalez",
+    meta: "Berkshire Hathaway HomeServices · Miami Beach",
+    badge: "legacy",
+    blurb: "Forty years in Miami Beach real estate. A legend whose market knowledge and network are impossible to replicate. Still active, still relevant.",
+    details: {
+      "Why he's here": "The institutional memory of Miami Beach real estate. Clients trust him because he has seen every cycle.",
+      "Known for": "South of Fifth. Miami Beach single-family. Long-term client relationships.",
+      "Brokerage": "Berkshire Hathaway HomeServices EWM Realty",
+      "Specialty": "Miami Beach Residential. Legacy Market."
+    }
+  },
+  {
+    rank: 7, name: "Billy Nash",
+    meta: "One Sotheby's International Realty · South Beach",
+    badge: "dominant",
+    blurb: "One Sotheby's anchor in the ultra-luxury residential market. Consistent top-of-market producer with an institutional approach to client service.",
+    details: {
+      "Why he's here": "Multi-year top producer at one of Miami's most prestigious platforms. The standard for what serious luxury looks like.",
+      "Known for": "Waterfront homes. South Beach luxury. High-net-worth domestic buyers.",
+      "Brokerage": "One Sotheby's International Realty",
+      "Specialty": "Ultra-Luxury Residential."
+    }
+  },
+  {
+    rank: 8, name: "Ruthie Assouline & Ethan Assouline", tie: true,
+    meta: "Assouline Real Estate · Miami Beach",
+    badge: "fire",
+    blurb: "The Assouline team built a next-generation luxury brand anchored in social content and intimate client experience. One of the fastest-growing luxury teams in South Florida.",
+    details: {
+      "Why they're here": "The modern luxury broker playbook. Content-forward, relationship-driven, and consistently closing at the top of the market.",
+      "Known for": "Miami Beach trophy condos. Social-media-driven deal flow. Younger HNW buyer demographic.",
+      "Brokerage": "Assouline Real Estate (Independent)",
+      "Specialty": "Luxury Condos. Next-Gen Marketing."
+    }
+  },
+  {
+    rank: 9, name: "Stephanie Bienstock",
+    meta: "Compass · Coral Gables / South Miami",
+    badge: "rising",
+    blurb: "Emerging as one of the top names on the Compass platform in Miami. Strong in the family-home luxury segment with a data-driven approach.",
+    details: {
+      "Why she's here": "Year-over-year volume growth that has put her in conversations with the long-established names. One to watch.",
+      "Known for": "Coral Gables estates. Pinecrest. Family-oriented luxury market.",
+      "Brokerage": "Compass",
+      "Specialty": "Luxury Residential. South Miami Corridor."
+    }
+  },
+  {
+    rank: 10, name: "Danny Hertzberg",
+    meta: "Coldwell Banker · Coconut Grove",
+    badge: "dominant",
+    blurb: "Son of the Two Jills and a force in his own right. Now leading a new generation of luxury real estate with the brand pedigree to back it up.",
+    details: {
+      "Why he's here": "Carrying the most recognized name in Miami luxury and building his own track record independently. The succession is real.",
+      "Known for": "Coconut Grove waterfront. Coral Gables. Next-generation HNW buyers.",
+      "Brokerage": "Coldwell Banker Realty",
+      "Specialty": "Luxury Waterfront. Family Estates."
+    }
+  },
+  {
+    rank: 11, name: "Yvonne Navarro",
+    meta: "EWM Realty · Coral Gables",
+    badge: "legacy",
+    blurb: "EWM stalwart and one of the most respected names in Coral Gables residential. Longevity and repeat clientele define her career.",
+    details: {
+      "Why she's here": "Decades of trust-building in the most architecturally significant zip codes in Miami-Dade.",
+      "Known for": "Coral Gables historic estates. Referral-driven business.",
+      "Brokerage": "EWM Realty International",
+      "Specialty": "Luxury Residential. Coral Gables."
+    }
+  },
+  {
+    rank: 12, name: "Ari Albinder",
+    meta: "Mizner Grande Realty · Boca / Broward",
+    badge: "power",
+    blurb: "The dominant force in the Boca Raton and Broward luxury market. Owner-operator of one of the highest-volume independent brokerages in South Florida.",
+    details: {
+      "Why he's here": "Market dominance in the upper tier of Broward and Palm Beach luxury. Institutional buyer relationships.",
+      "Known for": "Boca Raton waterfront. High-volume team production.",
+      "Brokerage": "Mizner Grande Realty (Founder)",
+      "Specialty": "Luxury Residential. Boca and Broward."
+    }
+  },
+  {
+    rank: 13, name: "Devin Kay",
+    meta: "Douglas Elliman · Miami Beach",
+    badge: "fire",
+    blurb: "Climbing fast at Douglas Elliman. Strong in the Miami Beach condo market with a tech-forward approach and a growing ultra-HNW network.",
+    details: {
+      "Why he's here": "One of the most consistently mentioned rising names at Elliman's Miami platform.",
+      "Known for": "Miami Beach condos. Pre-construction advisory.",
+      "Brokerage": "Douglas Elliman",
+      "Specialty": "Luxury Condos. Miami Beach."
+    }
+  },
+  {
+    rank: 14, name: "Mirce Curkoski",
+    meta: "One Sotheby's · Edgewater / Wynwood",
+    badge: "rising",
+    blurb: "The go-to broker for Edgewater and the arts district. Positioned at the intersection of art, culture, and real estate in Miami's most creatively charged corridor.",
+    details: {
+      "Why he's here": "Owning a neighborhood before it fully arrives is a power move. Edgewater is here.",
+      "Known for": "Edgewater luxury. Wynwood adjacent. Arts-collector buyer demographic.",
+      "Brokerage": "One Sotheby's International Realty",
+      "Specialty": "Edgewater. Urban Luxury."
+    }
+  },
+  {
+    rank: 15, name: "Samantha Morel",
+    meta: "Compass · Brickell",
+    badge: "rising",
+    blurb: "One of the standout young producers on the Compass platform. Fluent in both domestic and international luxury buyers, with particular strength in new development.",
+    details: {
+      "Why she's here": "The trajectory is unmistakable. New development advisory at a serious price point.",
+      "Known for": "Brickell luxury condos. New construction advisory. Young HNW buyer segment.",
+      "Brokerage": "Compass",
+      "Specialty": "New Development. Brickell."
+    }
+  },
+  {
+    rank: 16, name: "Ron Shuffield",
+    meta: "Berkshire Hathaway HomeServices EWM · Coral Gables",
+    badge: "power",
+    blurb: "President and CEO of EWM Realty. The most influential single figure in Miami's independent brokerage ecosystem. Doesn't just sell. Shapes markets.",
+    details: {
+      "Why he's here": "Institutional power. Ron doesn't just close deals. He influences the entire South Florida market structure.",
+      "Known for": "Market commentary. Industry leadership. EWM's institutional market share.",
+      "Brokerage": "Berkshire Hathaway HomeServices EWM (President & CEO)",
+      "Specialty": "Market Leadership. Institutional Influence."
+    }
+  },
+  {
+    rank: 17, name: "Adriana Leal",
+    meta: "International Sales Group · Brickell",
+    badge: "power",
+    blurb: "A pillar of the new development sales world. ISG powers the pre-construction pipeline on some of Miami's biggest towers, and Adriana is at the center of it.",
+    details: {
+      "Why she's here": "New development sales at scale. The broker who moves buildings before they're built.",
+      "Known for": "Pre-construction luxury towers. Latin American investor relations.",
+      "Brokerage": "International Sales Group",
+      "Specialty": "New Development Sales. Tower Pre-Construction."
+    }
+  },
+  {
+    rank: 18, name: "Manuel Villanueva",
+    meta: "Fortune International Group · Bal Harbour",
+    badge: "power",
+    blurb: "Fortune International Group is one of Miami's premier new development and residential brokerages. Manuel is a core production driver in the ultra-luxury tier.",
+    details: {
+      "Why he's here": "Fortune's platform is one of the most powerful in South Florida. Manuel converts it into consistent top-of-market results.",
+      "Known for": "Bal Harbour. Sunny Isles. Ultra-luxury new development.",
+      "Brokerage": "Fortune International Group",
+      "Specialty": "Ultra-Luxury. New Development."
+    }
+  },
+  {
+    rank: 19, name: "Tatiana Londono",
+    meta: "The Londono Group · Miami Beach",
+    badge: "fire",
+    blurb: "Built her brand through content and community before it was a playbook. The most visible broker in the Latin American market and her volume backs it up.",
+    details: {
+      "Why she's here": "Social media reach that translates into real deal flow. A content-native broker who never forgot to close.",
+      "Known for": "Latin American buyers. Miami Beach. Brand-driven organic lead generation.",
+      "Brokerage": "The Londono Group (Independent)",
+      "Specialty": "International Buyers. Content-Native Brand."
+    }
+  },
+  {
+    rank: 20, name: "Claudia Gallego",
+    meta: "Nest Seekers International · Miami Beach",
+    badge: "rising",
+    blurb: "Nest Seekers' top Miami producer and a broker building serious momentum in the international buyer market, particularly from Europe and South America.",
+    details: {
+      "Why she's here": "Nest Seekers' cross-border referral network gives her a pipeline most local brokers can't access.",
+      "Known for": "International HNW buyers. Miami Beach luxury condos.",
+      "Brokerage": "Nest Seekers International",
+      "Specialty": "International Buyers. Miami Beach."
+    }
+  },
+  {
+    rank: 21, name: "Ivan Chorney & Liz Hogan", tie: true,
+    meta: "Compass · South Beach",
+    badge: "legacy",
+    blurb: "One of the most enduring South Beach teams in the business. Two brokers who have collectively watched South Beach transform from rough edges to trophy real estate.",
+    details: {
+      "Why they're here": "Institutional knowledge of South Beach that no newcomer can replicate. The first call when a serious deal is happening there.",
+      "Known for": "South Beach single-family and condos. Long-standing developer relationships.",
+      "Brokerage": "Compass",
+      "Specialty": "South Beach Legacy Market."
+    }
+  },
+  {
+    rank: 22, name: "Alex Vidal",
+    meta: "ISG World · Downtown Miami",
+    badge: "power",
+    blurb: "A key figure in the downtown Miami development sales machine. ISG's top-performing agents are reshaping what downtown Miami looks like one tower at a time.",
+    details: {
+      "Why he's here": "Pre-construction is where Miami's growth story lives. Alex is in the middle of that story.",
+      "Known for": "Downtown Miami towers. New development advisory. Latin American investors.",
+      "Brokerage": "ISG World",
+      "Specialty": "New Development. Downtown Miami."
+    }
+  },
+  {
+    rank: 23, name: "Vivian Dimond",
+    meta: "Berkshire Hathaway HomeServices EWM · Key Biscayne",
+    badge: "legacy",
+    blurb: "The undisputed anchor of Key Biscayne real estate. If you are buying or selling on the Key, this is the name.",
+    details: {
+      "Why she's here": "Geographic dominance of one of the most desirable and tightly held micro-markets in South Florida.",
+      "Known for": "Key Biscayne estates and condos. Long-term island clientele.",
+      "Brokerage": "Berkshire Hathaway HomeServices EWM",
+      "Specialty": "Key Biscayne. Island Market."
+    }
+  },
+  {
+    rank: 24, name: "David Siddons",
+    meta: "Siddons International · Miami Beach",
+    badge: "fire",
+    blurb: "Built a data-and-analysis-driven brand in a market that mostly runs on relationships and vibes. His market reports are required reading.",
+    details: {
+      "Why he's here": "The only broker in Miami whose market intelligence is as influential as his deal sheet. A different kind of power.",
+      "Known for": "Market research. Luxury residential advisory. Miami Beach and Coconut Grove.",
+      "Brokerage": "Siddons International (Independent)",
+      "Specialty": "Data-Driven Luxury Advisory."
+    }
+  },
+  {
+    rank: 25, name: "Mayi de la Vega",
+    meta: "ONE Sotheby's International Realty · Coral Gables",
+    badge: "power",
+    blurb: "CEO and founder of ONE Sotheby's International Realty. The most powerful luxury brokerage brand built from the ground up in South Florida history.",
+    details: {
+      "Why she's here": "Mayi doesn't just close deals. She built the platform that closes thousands of them. Institutional power at the highest level.",
+      "Known for": "Founded and leads ONE Sotheby's. Developer partnerships. Market-wide influence.",
+      "Brokerage": "ONE Sotheby's International Realty (CEO & Founder)",
+      "Specialty": "Brokerage Leadership. Market Architecture."
+    }
+  }
+];
+
+const BADGE_CONFIG = {
+  dominant: { label: "Dominant",     dotClass: "dot-dominant" },
+  fire:     { label: "On Fire",      dotClass: "dot-fire" },
+  rising:   { label: "Rising",       dotClass: "dot-rising" },
+  power:    { label: "Power Broker", dotClass: "dot-power" },
+  legacy:   { label: "Legacy",       dotClass: "dot-legacy" }
+};
+
+let activeFilter = "all";
+let isLight = false;
+
+function toggleMode() {
+  isLight = !isLight;
+  document.body.classList.toggle("light", isLight);
+  document.getElementById("toggleBtn").innerHTML = isLight ? "☾ Dark mode" : "☀ Light mode";
+}
+
+function setFilter(f, el) {
+  activeFilter = f;
+  document.querySelectorAll(".key-item").forEach(k => k.classList.remove("active"));
+  el.classList.add("active");
+  renderEntries();
+}
+
+function renderEntries() {
+  const list = document.getElementById("entries-list");
+  const filtered = activeFilter === "all" ? brokers : brokers.filter(b => b.badge === activeFilter);
+  list.innerHTML = filtered.map(b => {
+    const cfg = BADGE_CONFIG[b.badge];
+    const isLegacy = b.badge === "legacy";
+    const dotExtra = isLegacy ? "style=\"background:transparent;border:1.5px solid var(--muted);\"" : "";
+    const detailBlocks = Object.entries(b.details).map(([k,v]) => `
+      <div class="expand-block">
+        <div class="expand-block-label">${k}</div>
+        <div class="expand-block-text">${v}</div>
+      </div>`).join("");
+    return `
+    <div class="entry" onclick="toggleExpand(${b.rank})">
+      <div class="entry-main">
+        <div class="entry-num">${b.rank}</div>
+        <div class="entry-body">
+          <div class="entry-name">
+            ${b.name}
+            ${b.tie ? '<span class="tie-tag">Tie</span>' : ""}
+          </div>
+          <div class="entry-meta">${b.meta}</div>
+          <div class="entry-blurb">${b.blurb}</div>
+        </div>
+        <div class="entry-right">
+          <div class="entry-badge">
+            <div class="badge-dot ${cfg.dotClass}" ${dotExtra}></div>
+            <div class="badge-label">${cfg.label}</div>
+          </div>
+          <div class="chevron" id="chev-${b.rank}">▼</div>
+        </div>
+      </div>
+      <div class="entry-expand" id="exp-${b.rank}">
+        <div class="expand-inner">${detailBlocks}</div>
+      </div>
+    </div>`;
+  }).join("");
+}
+
+function toggleExpand(rank) {
+  const panel = document.getElementById(`exp-${rank}`);
+  const chev  = document.getElementById(`chev-${rank}`);
+  const isOpen = panel.classList.contains("open");
+  document.querySelectorAll(".entry-expand").forEach(p => p.classList.remove("open"));
+  document.querySelectorAll(".chevron").forEach(c => c.classList.remove("open"));
+  if (!isOpen) { panel.classList.add("open"); chev.classList.add("open"); }
+}
+
+renderEntries();
+</script>
+</body>
+</html>
